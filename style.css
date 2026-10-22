@@ -1,0 +1,117 @@
+/* =========================================================
+   SKINTONZ TATTOO STUDIO — Option 1 - Soft Nude Theme
+   ========================================================= */
+
+:root {
+  --accent: #D4B496;
+  --accent-warm: #C29B7F;
+  --accent-light: #FDFBF7;
+  --accent-glow: rgba(212, 180, 150, 0.25);
+  
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0E0D0D;
+}
+::-webkit-scrollbar-thumb {
+  background: #221F1D;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Spotlight Beam Effect on Cards */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle 350px at var(--mouse-x) var(--mouse-y), rgba(212, 180, 150, 0.08), transparent 80%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+.spotlight-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(circle 200px at var(--mouse-x) var(--mouse-y), rgba(212, 180, 150, 0.5), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.spotlight-card:hover::after {
+  opacity: 1;
+}
+
+/* MOBILE OPTIMIZATIONS */
+@media (max-width: 767px) {
+  body, html {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+  .scramble-text {
+    min-width: 100% !important;
+    word-wrap: break-word;
+  }
+  .spotlight-card {
+    height: auto !important;
+    min-height: 280px;
+    padding: 1.5rem !important;
+  }
+  [x-data="{ position: 50 }"] {
+    height: 300px !important;
+  }
+  h1, .hero-heading {
+    font-size: 2.5rem !important; 
+    line-height: 1.2 !important;
+    margin-bottom: 1rem !important;
+  }
+  p, .body-text {
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+  }
+  section {
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+  }
+  .grid-container, .flex-row {
+    gap: 1.5rem !important;
+  }
+  button, a, .nav-link, .btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 0.75rem 1rem !important;
+  }
+  .nav-container, .header-links {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+    gap: 0.5rem !important;
+  }
+  .mobile-menu-toggle {
+    display: block !important;
+  }
+  .desktop-only, .hero-decoration {
+    display: none !important;
+  }
+}

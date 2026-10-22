@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en" class="dark scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skintonz Tattoo Studio | Premier Custom Tattoo Studio & Piercing in Lancaster, PA</title>
+    <meta name="description" content="Skintonz Tattoo Studio — Premier custom tattoo & sterile body piercing studio in Lancaster, PA." />
+    
+    <meta name="theme-color" content="#0E0D0D" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              noir: '#0E0D0D',
+              surface: '#181615',
+              card: '#221F1D',
+            },
+            fontFamily: {
+              serif: ['Cinzel', 'serif'],
+              headline: ['Cinzel Decorative', 'serif'],
+              sans: ['Plus Jakarta Sans', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Alpine.js & Plugins -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Animation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body
+    x-data="tattooStudio()"
+    x-init="initTheme()"
+    class="bg-noir text-gray-300 font-sans antialiased selection:bg-[var(--accent)] selection:text-noir overflow-x-hidden relative"
+  >
+    <!-- Glowing Header Scroll Tracker -->
+    <div id="scroll-tracker" class="fixed top-0 left-0 h-1 bg-[var(--accent)] z-[100] w-0 shadow-[0_0_10px_var(--accent-glow)] transition-all duration-75"></div>
+
+    <!-- Background Noise Grain Overlay -->
+    <div class="fixed inset-0 pointer-events-none z-50 opacity-[0.03] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+
+    <!-- Lightbox Modal -->
+    <div 
+      x-show="lightboxOpen" 
+      x-transition:enter="transition ease-out duration-300"
+      x-transition:enter-start="opacity-0 scale-95"
+      x-transition:enter-end="opacity-100 scale-100"
+      x-transition:leave="transition ease-in duration-200"
+      x-transition:leave-start="opacity-100 scale-100"
+      x-transition:leave-end="opacity-0 scale-95"
+      class="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12 bg-noir/95 backdrop-blur-2xl"
+      style="display: none;"
+    >
+      <button @click="lightboxOpen = false" class="absolute top-8 right-8 text-white hover:text-[var(--accent)] transition-colors z-10 p-2">
+        <i data-lucide="x" class="w-8 h-8"></i>
+      </button>
+      <img :src="lightboxImage" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" alt="Gallery Close Up">
+    </div>
+
+    <!-- ============ NAVIGATION ============ -->
+    <header
+      id="site-header"
+      :class="{ 'bg-noir/90 backdrop-blur-md border-b border-[var(--accent)]/10 py-3 shadow-2xl': scrolled, 'bg-transparent py-6': !scrolled }"
+      class="fixed top-0 left-0 w-full z-40 transition-all duration-500"
+    >
+      <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
+        <!-- Brand / Logo -->
+        <a href="#home" class="flex items-center gap-3 group">
+          <div class="w-10 h-10 rounded-full border border-[var(--accent)]/50 bg-surface flex items-center justify-center group-hover:border-[var(--accent)] group-hover:shadow-[0_0_15px_var(--accent-glow)] transition-all duration-300">
+            <span class="font-headline text-[var(--accent)] text-lg">S</span>
+          </div>
+          <div>
+            <span class="font-serif font-bold text-lg md:text-xl text-white tracking-wider block leading-none">SKINTONZ</span>
+            <span class="text-[9px] uppercase tracking-[0.3em] text-[var(--accent)] block mt-1 font-semibold">Tattoo Studio &amp; Piercing</span>
+          </div>
+        </a>
+
+        <!-- Desktop Menu -->
+        <nav class="hidden md:flex items-center gap-8">
+          <a href="#studio" class="text-xs uppercase tracking-[0.2em] font-medium text-gray-300 hover:text-[var(--accent)] transition-colors duration-300">Studio</a>
+          <a href="#gallery" class="text-xs uppercase tracking-[0.2em] font-medium text-gray-300 hover:text-[var(--accent)] transition-colors duration-300">Portfolio</a>
+          <a href="#styles" class="text-xs uppercase tracking-[0.2em] font-medium text-gray-300 hover:text-[var(--accent)] transition-colors duration-300">Services</a>
+          <a href="#artist" class="text-xs uppercase tracking-[0.2em] font-medium text-gray-300 hover:text-[var(--accent)] transition-colors duration-300">Artists</a>
+          <a href="#visit" class="text-xs uppercase tracking-[0.2em] font-medium text-gray-300 hover:text-[var(--accent)] transition-colors duration-300">Location</a>
+        </nav>
+
+        <!-- CTA Button (Magnetic) -->
+        <div class="hidden md:flex items-center gap-4">
+          <button
+            @click="openModal()"
+            class="magnetic-btn relative inline-flex items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-[0.2em] text-noir bg-[var(--accent)] rounded-full overflow-hidden shadow-[0_0_20px_var(--accent-glow)] transition-all duration-300 will-change-transform"
+          >
+            <span class="relative flex items-center gap-2">
+              <span>Book Session</span>
+              <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+            </span>
+          </button>
+        </div>
+
+        <!-- Mobile Menu Toggle -->
+        <button
+          @click="mobileMenuOpen = !mobileMenuOpen"
+          class="md:hidden text-white p-2 focus:outline-none"
+        >
+          <i x-show="!mobileMenuOpen" data-lucide="menu" class="w-6 h-6 text-[var(--accent)]"></i>
+          <i x-show="mobileMenuOpen" data-lucide="x" class="w-6 h-6 text-[var(--accent)]"></i>
+        </button>
+      </div>
+
+      <!-- Mobile Dropdown Menu -->
+      <div x-show="mobileMenuOpen" x-transition class="md:hidden bg-noir/95 backdrop-blur-xl border-b border-[var(--accent)]/10 px-6 py-8 flex flex-col gap-6">
+        <a @click="mobileMenuOpen = false" href="#studio" class="text-sm uppercase tracking-[0.2em] text-gray-200 hover:text-[var(--accent)]">Studio</a>
+        <a @click="mobileMenuOpen = false" href="#gallery" class="text-sm uppercase tracking-[0.2em] text-gray-200 hover:text-[var(--accent)]">Portfolio</a>
+        <a @click="mobileMenuOpen = false" href="#styles" class="text-sm uppercase tracking-[0.2em] text-gray-200 hover:text-[var(--accent)]">Services</a>
+        <a @click="mobileMenuOpen = false" href="#artist" class="text-sm uppercase tracking-[0.2em] text-gray-200 hover:text-[var(--accent)]">Artists</a>
+        <a @click="mobileMenuOpen = false" href="#visit" class="text-sm uppercase tracking-[0.2em] text-gray-200 hover:text-[var(--accent)]">Location</a>
+        <button @click="mobileMenuOpen = false; openModal()" class="w-full py-3 text-xs font-bold uppercase tracking-[0.2em] bg-[var(--accent)] text-noir rounded-full shadow-[0_0_20px_var(--accent-glow)]">
+          Book a Session
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ============ HERO SECTION ============ -->
+      <section id="home" class="relative min-h-screen flex items-end justify-start pt-40 pb-20 overflow-hidden">
+        <!-- Parallax Background -->
+        <div class="absolute inset-0 z-0 hero-bg origin-center">
+          <img
+            src="https://images.unsplash.com/photo-1565058379802-bbe93b2f703a?auto=format&fit=crop&w=1920&q=80"
+            alt="Skintonz Tattoo Studio Background"
+            class="w-full h-full object-cover object-center filter brightness-[0.5] contrast-105"
+          />
+          <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-screen">
+            <source src="https://assets.mixkit.co/videos/396/396-720.mp4" type="video/mp4" />
+          </video>
+          <div class="absolute inset-0 bg-gradient-to-t from-noir via-noir/50 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-noir via-noir/40 to-transparent"></div>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="relative z-10 max-w-7xl mx-auto px-6 w-full mb-12">
+          <div class="max-w-3xl">
+            <!-- Decrypt / Scramble Text Headline -->
+            <h1 class="font-headline text-4xl sm:text-6xl md:text-7xl font-black text-white leading-[1.05] tracking-tight mb-6">
+              HEART &amp; SOUL.<br />
+              <span class="scramble-text text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] via-[#FDFBF7] to-[var(--accent-warm)] font-serif italic inline-block min-w-[300px]">LOADING...</span><br />
+              UNWAVERING ART.
+            </h1>
+
+            <p class="reveal-item text-stone-300 text-base md:text-lg max-w-xl font-light leading-relaxed mb-10">
+              Premier custom tattooing, intricate body art, and professional sterile piercings in Lancaster, Pennsylvania.
+            </p>
+
+            <div class="reveal-item flex flex-wrap items-center gap-5">
+              <button
+                @click="openModal()"
+                class="magnetic-btn px-8 py-4 bg-[var(--accent)] text-noir text-xs font-bold uppercase tracking-[0.25em] rounded-full hover:bg-white hover:shadow-[0_0_30px_var(--accent-glow)] transition-all duration-300"
+              >
+                Request Appointment
+              </button>
+              <a
+                href="#gallery"
+                class="magnetic-btn px-8 py-4 border border-stone-700 hover:border-[var(--accent)] text-stone-300 hover:text-white text-xs font-bold uppercase tracking-[0.25em] rounded-full backdrop-blur-sm transition-all duration-300"
+              >
+                Explore Portfolio
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ INTERACTIVE BEFORE/AFTER SLIDER ============ -->
+      <section class="py-20 bg-surface border-t border-[var(--accent)]/10 relative z-10 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+          <div class="reveal-item mb-12">
+            <span class="text-xs font-bold uppercase tracking-[0.3em] text-[var(--accent)] block mb-3">Healing Process</span>
+            <h2 class="font-serif text-3xl sm:text-4xl font-semibold text-white">
+              Fresh Ink <em class="text-[var(--accent)] italic font-normal">vs.</em> 1-Year Healed
+            </h2>
+          </div>
+
+          <!-- Slider Container -->
+          <div 
+            class="reveal-item relative w-full max-w-4xl mx-auto h-[400px] md:h-[600px] overflow-hidden rounded-2xl cursor-ew-resize border border-[var(--accent)]/20 shadow-2xl" 
+            x-data="{ position: 50 }" 
+            @mousemove="position = Math.max(0, Math.min(100, ($event.clientX - $el.getBoundingClientRect().left) / $el.offsetWidth * 100))" 
+            @touchmove="position = Math.max(0, Math.min(100, ($event.touches[0].clientX - $el.getBoundingClientRect().left) / $el.offsetWidth * 100))"
+          >
+            <!-- After/Healed Image (Bottom) -->
+            <img src="https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?auto=format&fit=crop&w=1200&q=80" alt="Healed Tattoo" class="absolute inset-0 w-full h-full object-cover filter contrast-125" draggable="false">
+            
+            <div class="absolute top-6 right-6 px-4 py-1.5 bg-noir/80 backdrop-blur-md rounded-full border border-stone-700 z-0">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-stone-300">Healed (1 Year)</span>
+            </div>
+
+            <!-- Before/Fresh Image (Top, Clipped) -->
+            <div class="absolute inset-0 z-10" :style="`clip-path: polygon(0 0, ${position}% 0, ${position}% 100%, 0 100%)`">
+              <img src="https://images.unsplash.com/photo-1562962230-16e4623d36e6?auto=format&fit=crop&w=1200&q=80" alt="Fresh Tattoo" class="absolute inset-0 w-full h-full object-cover filter contrast-110" draggable="false">
+              <div class="absolute top-6 left-6 px-4 py-1.5 bg-noir/80 backdrop-blur-md rounded-full border border-[var(--accent)]/50">
+                  <span class="text-[10px] font-bold uppercase tracking-widest text-[var(--accent)]">Fresh Ink</span>
+              </div>
+            </div>
+            
+            <!-- Slider Line -->
+            <div class="absolute top-0 bottom-0 w-0.5 bg-[var(--accent)] shadow-[0_0_15px_var(--accent-glow)] z-20 pointer-events-none" :style="`left: ${position}%`">
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-noir border-2 border-[var(--accent)] rounded-full flex items-center justify-center shadow-lg">
+                    <i data-lucide="chevrons-left-right" class="w-5 h-5 text-[var(--accent)]"></i>
+                </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ STUDIO INTRO ============ -->
+      <section id="studio" class="py-28 relative bg-noir border-t border-[var(--accent)]/10">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="grid lg:grid-cols-12 gap-16 items-center">
+            <div class="lg:col-span-6 reveal-item">
+              <span class="text-xs font-bold uppercase tracking-[0.3em] text-[var(--accent)] block mb-4">The Studio Story</span>
+              <h2 class="font-serif text-3xl sm:text-5xl font-semibold text-white leading-tight mb-8">
+                Artistry forged with <em class="text-[var(--accent)] italic font-normal">passion</em> &amp; precision.
+              </h2>
+              <p class="text-stone-300 text-base font-light leading-relaxed mb-10">
+                Welcome to <strong class="text-white font-medium">Skintonz Tattoo Studio</strong> in Lancaster, PA. Our studio brings high-end custom tattooing and body piercings delivered with sterile safety, artistic mastery, and rich skin-tone depth.
+              </p>
+
+              <!-- Pillars -->
+              <div class="space-y-6 border-t border-stone-800 pt-8">
+                <div class="flex gap-5 reveal-item">
+                  <div class="w-10 h-10 rounded-full bg-card border border-[var(--accent)]/30 flex items-center justify-center shrink-0 text-[var(--accent)] font-serif font-bold text-sm">01</div>
+                  <div>
+                    <h3 class="font-serif text-lg font-medium text-white mb-1">Custom Concepting</h3>
+                    <p class="text-sm text-stone-400 font-light">Transforming client visions and sketches into bold, custom artwork.</p>
+                  </div>
+                </div>
+                <div class="flex gap-5 reveal-item">
+                  <div class="w-10 h-10 rounded-full bg-card border border-[var(--accent)]/30 flex items-center justify-center shrink-0 text-[var(--accent)] font-serif font-bold text-sm">02</div>
+                  <div>
+                    <h3 class="font-serif text-lg font-medium text-white mb-1">Precision &amp; Line Mastery</h3>
+                    <p class="text-sm text-stone-400 font-light">Razor-sharp linework, deep black shading, and smooth color saturation.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dark Mask Unveil Images -->
+            <div class="lg:col-span-6 relative grid grid-cols-2 gap-4">
+              <div class="mask-reveal relative overflow-hidden rounded-2xl border border-[var(--accent)]/15 mt-12">
+                <img src="https://images.unsplash.com/photo-1546432635-c2476e6a2a25?auto=format&fit=crop&w=800&q=80" alt="Tattoo equipment" class="w-full h-80 object-cover filter contrast-110" />
+                <div class="mask-overlay absolute inset-0 bg-noir origin-bottom"></div>
+              </div>
+              <div class="mask-reveal relative overflow-hidden rounded-2xl border border-[var(--accent)]/15 mb-12">
+                <img src="https://images.unsplash.com/photo-1513078094721-e7b6e0394a6a?auto=format&fit=crop&w=800&q=80" alt="Artist at work" class="w-full h-80 object-cover filter contrast-110" />
+                <div class="mask-overlay absolute inset-0 bg-noir origin-top"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PORTFOLIO GALLERY ============ -->
+      <section id="gallery" class="py-28 bg-surface relative border-t border-[var(--accent)]/10">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 reveal-item">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-[0.3em] text-[var(--accent)] block mb-3">Portfolio Showcase</span>
+              <h2 class="font-serif text-3xl sm:text-5xl font-semibold text-white">
+                Selected <em class="text-[var(--accent)] italic font-normal">Artwork</em>
+              </h2>
+            </div>
+            <!-- Fluid Filters -->
+            <div class="flex flex-wrap gap-2">
+              <template x-for="cat in ['all', 'blackwork', 'fine-line', 'realism']">
+                <button
+                  @click="activeCategory = cat"
+                  :class="activeCategory === cat ? 'bg-[var(--accent)] text-noir border-[var(--accent)]' : 'bg-card/60 text-stone-300 border-[var(--accent)]/20 hover:border-[var(--accent)]/50 hover:text-white'"
+                  class="px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-[0.15em] border transition-all duration-300"
+                  x-text="cat === 'fine-line' ? 'Fine Line' : cat.charAt(0).toUpperCase() + cat.slice(1)"
+                ></button>
+              </template>
+            </div>
+          </div>
+
+          <!-- Interactive Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+            <template x-for="(item, index) in gallery" :key="index">
+              <div 
+                x-show="activeCategory === 'all' || activeCategory === item.cat"
+                x-transition:enter="transition ease-out duration-500"
+                x-transition:enter-start="opacity-0 scale-90 translate-y-8"
+                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-300 absolute"
+                x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-90"
+                @click="openLightbox(item.img)"
+                class="group relative rounded-2xl overflow-hidden border border-[var(--accent)]/20 bg-card aspect-[3/4] cursor-pointer will-change-transform"
+              >
+                <img :src="item.img" :alt="item.title" class="w-full h-full object-cover filter contrast-110 group-hover:scale-110 transition-all duration-700" />
+                <div class="absolute inset-0 bg-gradient-to-t from-noir via-noir/40 to-transparent opacity-90 group-hover:opacity-100 transition-opacity"></div>
+                <div class="absolute bottom-0 left-0 p-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                  <span class="text-[10px] uppercase tracking-[0.25em] text-[var(--accent)] font-bold block mb-1" x-text="item.catName"></span>
+                  <h3 class="font-serif text-lg font-medium text-white" x-text="item.title"></h3>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SERVICES & SPECIALTIES ============ -->
+      <section id="styles" class="py-28 bg-noir relative border-t border-[var(--accent)]/10">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="max-w-2xl mb-16 reveal-item">
+            <span class="text-xs font-bold uppercase tracking-[0.3em] text-[var(--accent)] block mb-3">Our Offerings</span>
+            <h2 class="font-serif text-3xl sm:text-5xl font-semibold text-white mb-4">
+              Services &amp; <em class="text-[var(--accent)] italic font-normal">Specialties</em>
+            </h2>
+          </div>
+
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2" class="spotlight-card reveal-item bg-card border border-[var(--accent)]/20 rounded-2xl p-8 transition-all duration-500 group flex flex-col justify-between h-[300px]">
+              <div class="relative z-10">
+                <span class="text-xs font-serif font-bold text-[var(--accent)] tracking-widest block mb-4">01</span>
+                <h3 class="font-serif text-2xl font-medium text-white mb-3">Custom Blackwork</h3>
+                <p class="text-stone-400 text-sm font-light leading-relaxed">Heavy black fills, intricate geometry, and high contrast custom linework.</p>
+              </div>
+              <button @click="openModal('Custom Blackwork')" class="relative z-10 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent)] hover:text-white transition-colors mt-6">
+                Inquire Service <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <div data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2" class="spotlight-card reveal-item bg-card border border-[var(--accent)]/20 rounded-2xl p-8 transition-all duration-500 group flex flex-col justify-between h-[300px]" style="transition-delay: 100ms;">
+              <div class="relative z-10">
+                <span class="text-xs font-serif font-bold text-[var(--accent)] tracking-widest block mb-4">02</span>
+                <h3 class="font-serif text-2xl font-medium text-white mb-3">Micro Fine Line</h3>
+                <p class="text-stone-400 text-sm font-light leading-relaxed">Single-pass micro needlework for delicate, subtle, and ultra-precise concepts.</p>
+              </div>
+              <button @click="openModal('Fine Line')" class="relative z-10 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent)] hover:text-white transition-colors mt-6">
+                Inquire Service <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <div data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2" class="spotlight-card reveal-item bg-card border border-[var(--accent)]/20 rounded-2xl p-8 transition-all duration-500 group flex flex-col justify-between h-[300px]" style="transition-delay: 200ms;">
+              <div class="relative z-10">
+                <span class="text-xs font-serif font-bold text-[var(--accent)] tracking-widest block mb-4">03</span>
+                <h3 class="font-serif text-2xl font-medium text-white mb-3">Sterile Piercing</h3>
+                <p class="text-stone-400 text-sm font-light leading-relaxed">Medical-grade body piercing in a sterile environment with implant-grade jewelry.</p>
+              </div>
+              <button @click="openModal('Body Piercing')" class="relative z-10 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent)] hover:text-white transition-colors mt-6">
+                Inquire Service <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <div data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2" class="spotlight-card reveal-item bg-card border border-[var(--accent)]/20 rounded-2xl p-8 transition-all duration-500 group flex flex-col justify-between h-[300px]" style="transition-delay: 300ms;">
+              <div class="relative z-10">
+                <span class="text-xs font-serif font-bold text-[var(--accent)] tracking-widest block mb-4">04</span>
+                <h3 class="font-serif text-2xl font-medium text-white mb-3">Realism &amp; Shading</h3>
+                <p class="text-stone-400 text-sm font-light leading-relaxed">Lifelike portraits and intricate objects rendered with smooth black &amp; grey tonal depth.</p>
+              </div>
+              <button @click="openModal('Realism')" class="relative z-10 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent)] hover:text-white transition-colors mt-6">
+                Inquire Service <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <div data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2" class="spotlight-card reveal-item bg-card border border-[var(--accent)]/20 rounded-2xl p-8 transition-all duration-500 group flex flex-col justify-between h-[300px]" style="transition-delay: 400ms;">
+              <div class="relative z-10">
+                <span class="text-xs font-serif font-bold text-[var(--accent)] tracking-widest block mb-4">05</span>
+                <h3 class="font-serif text-2xl font-medium text-white mb-3">Hardcore Traditional</h3>
+                <p class="text-stone-400 text-sm font-light leading-relaxed">Bold structural outlines, enduring black &amp; color, and high-impact custom artwork.</p>
+              </div>
+              <button @click="openModal('Neo-Traditional')" class="relative z-10 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent)] hover:text-white transition-colors mt-6">
+                Inquire Service <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <div data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2" class="spotlight-card reveal-item bg-card border border-[var(--accent)]/20 rounded-2xl p-8 transition-all duration-500 group flex flex-col justify-between h-[300px]" style="transition-delay: 500ms;">
+              <div class="relative z-10">
+                <span class="text-xs font-serif font-bold text-[var(--accent)] tracking-widest block mb-4">06</span>
+                <h3 class="font-serif text-2xl font-medium text-white mb-3">Custom Script</h3>
+                <p class="text-stone-400 text-sm font-light leading-relaxed">Bespoke typography, calligraphy, minimalist lettering, and hand-drawn script.</p>
+              </div>
+              <button @click="openModal('Script')" class="relative z-10 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent)] hover:text-white transition-colors mt-6">
+                Inquire Service <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ARTIST FEATURE ============ -->
+      <section id="artist" class="py-28 bg-surface relative border-t border-[var(--accent)]/10">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="grid lg:grid-cols-12 gap-16 items-center">
+            
+            <div class="lg:col-span-5 relative reveal-item">
+              <div class="rounded-2xl overflow-hidden border border-[var(--accent)]/30 shadow-[0_0_50px_var(--accent-glow)]">
+                <img
+                  src="https://images.unsplash.com/photo-1542744383-8c330d91f4b1?auto=format&fit=crop&w=800&q=80"
+                  alt="Skintonz Tattoo Artist"
+                  class="w-full h-[520px] object-cover filter contrast-110"
+                />
+              </div>
+            </div>
+
+            <div class="lg:col-span-7 reveal-item">
+              <span class="text-xs font-bold uppercase tracking-[0.3em] text-[var(--accent)] block mb-3">Custom Tattooing &amp; Body Art</span>
+              <h2 class="font-serif text-4xl sm:text-5xl font-bold text-white mb-2">Skintonz Tattoo Artists</h2>
+              <p class="text-[var(--accent)] text-xs uppercase tracking-[0.2em] font-semibold mb-6">Master Tattooists &amp; Body Piercing Specialists</p>
+              
+              <p class="text-stone-300 text-base font-light leading-relaxed mb-6">
+                At Skintonz Tattoo Studio, our talented team brings custom mastery to every session. Dedicated to sterile environments, creative collaboration, and long-lasting quality, we help bring your personal vision to life on skin.
+              </p>
+              
+              <div class="flex flex-wrap gap-2 mb-8">
+                <span class="px-4 py-1.5 rounded-full bg-card border border-[var(--accent)]/20 text-xs text-stone-300">Custom Sleeves</span>
+                <span class="px-4 py-1.5 rounded-full bg-card border border-[var(--accent)]/20 text-xs text-stone-300">Cover-Up Specialist</span>
+                <span class="px-4 py-1.5 rounded-full bg-card border border-[var(--accent)]/20 text-xs text-stone-300">Sterile Body Piercing</span>
+                <span class="px-4 py-1.5 rounded-full bg-card border border-[var(--accent)]/20 text-xs text-stone-300">Heavy Blackwork</span>
+              </div>
+
+              <button
+                @click="openModal()"
+                class="magnetic-btn px-8 py-4 bg-[var(--accent)] text-noir text-xs font-bold uppercase tracking-[0.25em] rounded-full hover:bg-white hover:shadow-[0_0_30px_var(--accent-glow)] transition-all duration-300"
+              >
+                Book Your Session
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ LOCATION & MAP ============ -->
+      <section id="visit" class="py-28 bg-noir relative border-t border-[var(--accent)]/10">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="grid lg:grid-cols-12 gap-16 items-center">
+            
+            <div class="lg:col-span-5 reveal-item">
+              <span class="text-xs font-bold uppercase tracking-[0.3em] text-[var(--accent)] block mb-3">Visit Studio</span>
+              <h2 class="font-serif text-3xl sm:text-5xl font-semibold text-white mb-8">
+                Location &amp; <em class="text-[var(--accent)] italic font-normal">Contact</em>
+              </h2>
+
+              <div class="space-y-6 text-stone-300 text-sm font-light mb-10">
+                <div class="flex items-start gap-4">
+                  <i data-lucide="map-pin" class="w-5 h-5 text-[var(--accent)] shrink-0 mt-1"></i>
+                  <div>
+                    <strong class="text-white font-medium block text-base mb-1">Skintonz Tattoo Studio</strong>
+                    <p>1027 Dillerville Rd, Ste 13<br />Lancaster, PA 17603</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                  <i data-lucide="phone" class="w-5 h-5 text-[var(--accent)] shrink-0"></i>
+                  <a href="tel:+17173961320" class="hover:text-[var(--accent)] transition-colors">+1 717-396-1320</a>
+                </div>
+              </div>
+
+              <a
+                href="https://www.google.com/maps/place/Skintonz+Tattoo+Studio/@40.0539519,-76.3252412,17z/data=!3m1!4b1!4m6!3m5!1s0x89c6246352586b1b:0xcf43f559f659aee3!8m2!3d40.0539478!4d-76.3226663"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="magnetic-btn inline-flex items-center gap-3 px-8 py-4 border border-[var(--accent)]/40 text-[var(--accent)] hover:text-noir hover:bg-[var(--accent)] text-xs font-bold uppercase tracking-[0.2em] rounded-full transition-all duration-300"
+              >
+                <span>Get Directions</span>
+                <i data-lucide="external-link" class="w-4 h-4"></i>
+              </a>
+            </div>
+
+            <!-- Map -->
+            <div class="lg:col-span-7 rounded-2xl overflow-hidden border border-[var(--accent)]/20 shadow-2xl h-96 relative reveal-item">
+              <iframe
+                title="Google Maps Studio Location"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3054.3411447040715!2d-76.3252412!3d40.0539519!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c6246352586b1b%3A0xcf43f559f659aee3!2sSkintonz%20Tattoo%20Studio!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus"
+                class="w-full h-full filter invert-[0.9] hue-rotate-[190deg] contrast-125"
+                loading="lazy"
+              ></iframe>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="bg-surface border-t border-[var(--accent)]/10 pt-20 pb-12">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 pb-16 border-b border-stone-800">
+          
+          <div class="md:col-span-2">
+            <a href="#home" class="flex items-center gap-3 mb-6">
+              <div class="w-8 h-8 rounded-full border border-[var(--accent)] bg-noir flex items-center justify-center">
+                <span class="font-headline text-[var(--accent)] text-xs">S</span>
+              </div>
+              <span class="font-serif font-bold text-lg text-white tracking-wider">SKINTONZ TATTOO</span>
+            </a>
+            <p class="text-stone-400 text-xs font-light max-w-sm leading-relaxed mb-6">
+              Heart &amp; Soul. Custom Ink. Unwavering Art. Serving Lancaster, Pennsylvania with premier custom tattooing and sterile body piercing.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="text-xs uppercase tracking-[0.25em] text-[var(--accent)] font-bold mb-6">Navigation</h4>
+            <ul class="space-y-3 text-xs text-stone-400">
+              <li><a href="#studio" class="hover:text-white transition-colors">Studio Story</a></li>
+              <li><a href="#gallery" class="hover:text-white transition-colors">Portfolio</a></li>
+              <li><a href="#styles" class="hover:text-white transition-colors">Services</a></li>
+              <li><a href="#artist" class="hover:text-white transition-colors">Artists</a></li>
+              <li><a href="#visit" class="hover:text-white transition-colors">Location</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="text-xs uppercase tracking-[0.25em] text-[var(--accent)] font-bold mb-6">Contact</h4>
+            <p class="text-xs text-stone-400 mb-2">1027 Dillerville Rd, Ste 13, Lancaster, PA 17603</p>
+            <p class="text-xs text-stone-400 mb-2"><a href="tel:+17173961320" class="hover:text-[var(--accent)]">+1 717-396-1320</a></p>
+          </div>
+
+        </div>
+
+        <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-stone-500 gap-4">
+          <p>&copy; 2026 Skintonz Tattoo Studio. All rights reserved.</p>
+          <p>Interactive Studio Web Application (Option 1 - Soft Nude).</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ============ BOOKING MODAL ============ -->
+    <div
+      x-show="modalOpen"
+      x-transition:enter="transition ease-out duration-300"
+      x-transition:enter-start="opacity-0"
+      x-transition:enter-end="opacity-100"
+      x-transition:leave="transition ease-in duration-200"
+      x-transition:leave-start="opacity-100"
+      x-transition:leave-end="opacity-0"
+      class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-noir/90 backdrop-blur-xl"
+      style="display: none;"
+    >
+      <div
+        @click.away="modalOpen = false"
+        class="bg-surface border border-[var(--accent)]/30 rounded-3xl p-8 md:p-12 max-w-xl w-full shadow-[0_0_80px_rgba(0,0,0,0.8)] relative max-h-[90vh] overflow-y-auto"
+      >
+        <button
+          @click="modalOpen = false"
+          class="absolute top-6 right-6 text-stone-400 hover:text-[var(--accent)] transition-colors"
+        >
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+
+        <div x-show="!formSubmitted">
+          <span class="text-xs font-bold uppercase tracking-[0.25em] text-[var(--accent)] block mb-2">Booking Request</span>
+          <h3 class="font-serif text-2xl md:text-3xl font-semibold text-white mb-6">
+            Tell us about your <em class="text-[var(--accent)] italic">tattoo or piercing idea</em>
+          </h3>
+
+          <form @submit.prevent="formSubmitted = true" class="space-y-5">
+            <div>
+              <label class="block text-[11px] uppercase tracking-[0.15em] font-bold text-stone-400 mb-2">Full Name</label>
+              <input type="text" required class="w-full bg-card border border-[var(--accent)]/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--accent)]" placeholder="John Doe" />
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-[11px] uppercase tracking-[0.15em] font-bold text-stone-400 mb-2">Email</label>
+                <input type="email" required class="w-full bg-card border border-[var(--accent)]/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--accent)]" placeholder="john@example.com" />
+              </div>
+              <div>
+                <label class="block text-[11px] uppercase tracking-[0.15em] font-bold text-stone-400 mb-2">Phone</label>
+                <input type="tel" class="w-full bg-card border border-[var(--accent)]/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--accent)]" placeholder="+1 (717) 000-0000" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11px] uppercase tracking-[0.15em] font-bold text-stone-400 mb-2">Service Requested</label>
+              <select x-model="selectedStyle" class="w-full bg-card border border-[var(--accent)]/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--accent)]">
+                <option value="">Choose a service</option>
+                <option value="Custom Blackwork">Custom Blackwork</option>
+                <option value="Fine Line">Micro Fine Line</option>
+                <option value="Realism">Realism &amp; Shading</option>
+                <option value="Neo-Traditional">Hardcore Traditional</option>
+                <option value="Body Piercing">Body Piercing</option>
+                <option value="Script">Custom Script</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[11px] uppercase tracking-[0.15em] font-bold text-stone-400 mb-2">Placement &amp; Concept</label>
+              <textarea rows="3" required class="w-full bg-card border border-[var(--accent)]/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--accent)]" placeholder="Describe placement (e.g. forearm, shoulder) and your idea..."></textarea>
+            </div>
+
+            <button type="submit" class="w-full py-4 bg-[var(--accent)] text-noir text-xs font-bold uppercase tracking-[0.25em] rounded-xl hover:bg-white transition-colors">
+              Submit Request
+            </button>
+          </form>
+        </div>
+
+        <div x-show="formSubmitted" class="text-center py-8">
+          <div class="w-16 h-16 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)] flex items-center justify-center mx-auto mb-6 text-[var(--accent)]">
+            <i data-lucide="check" class="w-8 h-8"></i>
+          </div>
+          <h3 class="font-serif text-2xl font-bold text-white mb-3">Inquiry Sent!</h3>
+          <p class="text-stone-400 text-xs font-light leading-relaxed mb-6">
+            Thank you for contacting Skintonz Tattoo Studio. To reach us directly, call <a href="tel:+17173961320" class="text-[var(--accent)] underline">+1 717-396-1320</a>.
+          </p>
+          <button @click="modalOpen = false; formSubmitted = false" class="px-6 py-2.5 bg-card border border-stone-800 text-xs uppercase tracking-[0.2em] text-white rounded-full">
+            Close
+          </button>
+        </div>
+
+      </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+  </body>
+</html>
